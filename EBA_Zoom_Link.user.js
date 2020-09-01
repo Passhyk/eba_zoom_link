@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EBA~Zoom Link
-// @version      0.1.0
+// @version      0.1.1
 // @namespace    https://ders.eba.gov.tr/
 // @description  EBA canlı derslerine Zoom uygulaması üzerinden ulaşın!
 // @author       Çağlar Turalı
@@ -12,7 +12,7 @@
 // @require      https://cdn.jsdelivr.net/npm/axios@0.20.0/dist/axios.min.js
 // @require      https://cdn.jsdelivr.net/npm/axios-userscript-adapter@0.0.4/dist/axiosGmxhrAdapter.min.js
 // @require      https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js
-// @connect      self
+// @connect      eba.gov.tr
 // @grant        GM_xmlhttpRequest
 // @run-at       document-end
 // ==/UserScript==
