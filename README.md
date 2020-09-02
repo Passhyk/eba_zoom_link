@@ -28,6 +28,8 @@ EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamas�
 
 4. [eba-canli-ders.js](https://gist.github.com/sh4dowb/9ecdc521c7323411f3294d5126a2bfde) betiğinden esinlenilmiştir. @sh4dowb 👌
 
-### Örnek ekran görüntüsü
+### Örnek Ekran Görüntüsü
+
+(İleri tarihli bir ders seçmeniz durumunda karşılaşacağınız ekran gösteriliyor.)
 
 ![](assets/screenshot.gif)
