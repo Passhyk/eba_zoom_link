@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EBA~Zoom Link
-// @version      0.1.1
+// @version      0.2.0
 // @namespace    https://ders.eba.gov.tr/
 // @description  EBA canlı derslerine Zoom uygulaması üzerinden ulaşın!
 // @author       Çağlar Turalı
@@ -9,9 +9,6 @@
 // @downloadURL  https://github.com/caglarturali/eba_zoom_link/raw/master/EBA_Zoom_Link.user.js
 // @icon         https://github.com/caglarturali/eba_zoom_link/raw/master/assets/logo256.png
 // @match        http*://ders.eba.gov.tr/*
-// @require      https://cdn.jsdelivr.net/npm/axios@0.20.0/dist/axios.min.js
-// @require      https://cdn.jsdelivr.net/npm/axios-userscript-adapter@0.0.4/dist/axiosGmxhrAdapter.min.js
-// @require      https://cdn.jsdelivr.net/npm/lodash@4.17.20/lodash.min.js
 // @connect      eba.gov.tr
 // @grant        GM_xmlhttpRequest
 // @run-at       document-end
@@ -19,26 +16,24 @@
 
 // Global object to attach everything into.
 const zooom = {};
-
-// Configure Axios.
-axios.defaults.adapter = axiosGmxhrAdapter;
-zooom.axios = axios.create({
-  withCredentials: true,
-});
 zooom.SERVICE_BASE = 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/';
 
 // Do the processing.
 zooom.init = async function () {
   // Get the list of live lessons.
-  const { data } = await zooom.axios.get(`${zooom.SERVICE_BASE}/studytime/getstudentstudytime`);
-  if (!(zooom.isSuccess(data) && data.totalRecords > 0)) {
+  const studyTimeResp = await fetch(`${zooom.SERVICE_BASE}/studytime/getstudentstudytime`, {
+    credentials: 'include',
+  });
+  const studyTimeData = await studyTimeResp.json();
+
+  if (!(zooom.isSuccess(studyTimeData) && studyTimeData.totalRecords > 0)) {
     return console.log('No live lessons found.');
   }
 
   const lessonsList = document.createElement('ul');
 
-  _.forEach(data.studyTimeList, (item) => {
-    const { id, title, startdate, enddate, ownerName, ownerSurname } = item;
+  studyTimeData.studyTimeList.forEach((studyTime) => {
+    const { id, title, startdate, enddate, ownerName, ownerSurname } = studyTime;
     const dates = `(${new Date(startdate).toLocaleString()} - ${new Date(enddate).toLocaleString()})`;
 
     const lessonItem = document.createElement('li');
@@ -48,19 +43,28 @@ zooom.init = async function () {
     const info = document.createElement('span');
     info.innerText = `${title} ${dates}`;
     info.style.cursor = 'pointer';
+    info.title = `${ownerName} ${ownerSurname}`;
     info.onclick = async () => {
-      const { data: meetingData } = await zooom.axios.post(`${zooom.SERVICE_BASE}'/livelesson/instudytime/start`, {
-        studytimeid: id,
-        tokentype: 'sometokentype',
+      const liveLessonResp = await fetch(`${zooom.SERVICE_BASE}/livelesson/instudytime/start`, {
+        method: 'POST',
+        headers: {
+          accept: 'json',
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: `studytimeid=${id}&tokentype=sometokentype`,
+        credentials: 'include',
+        mode: 'cors',
       });
-      if (!zooom.isSuccess(meetingData)) {
+      const liveLessonData = await liveLessonResp.json();
+
+      if (!zooom.isSuccess(liveLessonData)) {
         return console.log('Error loading meeting data.');
       }
 
       // Open meeting in a new tab.
       const {
         meeting: { url, token },
-      } = meetingData;
+      } = liveLessonData;
       unsafeWindow.open(`${url}?tk=${token}`);
     };
 
