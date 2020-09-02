@@ -22,7 +22,7 @@ EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamas�
 
 1. Yukarıdaki adımları sadece bir defa uygulamanız yeterlidir.
 
-2. Dilediğiniz zaman Tampermonkey açılır penceresinden betiği devredışı bırakabilirsiniz.
+2. Dilediğiniz zaman Tampermonkey eklenti seçeneklerinden betiği devredışı bırakabilirsiniz.
 
 3. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı güncellemeyi deneyin. Sorun devam ederse `issue` açmaktan çekinmeyin. 😊
 
