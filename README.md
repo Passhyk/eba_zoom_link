@@ -1,4 +1,4 @@
-# <img src="assets/logo256.png" width="32" height="32" align="left" style="margin-right: 6px"/> EBA~Zoom Link
+# <img src="assets/logo256.png" width="32" height="32" align="left"/> EBA~Zoom Link
 
 ## Nedir?
 
