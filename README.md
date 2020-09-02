@@ -27,3 +27,7 @@ EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamas�
 3. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı güncellemeyi deneyin. Sorun devam ederse `issue` açmaktan çekinmeyin. 😊
 
 4. [eba-canli-ders.js](https://gist.github.com/sh4dowb/9ecdc521c7323411f3294d5126a2bfde) betiğinden esinlenilmiştir. @sh4dowb 👌
+
+### Örnek ekran görüntüsü
+
+![](assets/screenshot.gif)
