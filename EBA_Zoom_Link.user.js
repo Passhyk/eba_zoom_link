@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EBA~Zoom Link
-// @version      0.2.0
+// @version      0.2.1
 // @namespace    https://ders.eba.gov.tr/
 // @description  EBA canlı derslerine Zoom uygulaması üzerinden ulaşın!
 // @author       Çağlar Turalı
@@ -16,20 +16,22 @@
 
 // Global object to attach everything into.
 const zooom = {};
-zooom.SERVICE_BASE = 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/';
 
 // Do the processing.
 zooom.init = async function () {
   // Get the list of live lessons.
-  const studyTimeResp = await fetch(`${zooom.SERVICE_BASE}/studytime/getstudentstudytime`, {
-    credentials: 'include',
+  const studyTimeData = await zooom.queryServiceForJson('/studytime/getstudentstudytime', {
+    status: 1,
+    type: 2,
+    pagesize: 25,
+    pagenumber: 0,
   });
-  const studyTimeData = await studyTimeResp.json();
 
   if (!(zooom.isSuccess(studyTimeData) && studyTimeData.totalRecords > 0)) {
     return console.log('No live lessons found.');
   }
 
+  // Container for lesson entries.
   const lessonsList = document.createElement('ul');
 
   studyTimeData.studyTimeList.forEach((studyTime) => {
@@ -44,24 +46,18 @@ zooom.init = async function () {
     info.innerText = `${title} ${dates}`;
     info.style.cursor = 'pointer';
     info.title = `${ownerName} ${ownerSurname}`;
+
+    // When clicked, (try to) open meeting in a new tab.
     info.onclick = async () => {
-      const liveLessonResp = await fetch(`${zooom.SERVICE_BASE}/livelesson/instudytime/start`, {
-        method: 'POST',
-        headers: {
-          accept: 'json',
-          'content-type': 'application/x-www-form-urlencoded',
-        },
-        body: `studytimeid=${id}&tokentype=sometokentype`,
-        credentials: 'include',
-        mode: 'cors',
+      const liveLessonData = await zooom.queryServiceForJson('/livelesson/instudytime/start', {
+        studytimeid: id,
+        tokentype: 'sometokentype',
       });
-      const liveLessonData = await liveLessonResp.json();
 
       if (!zooom.isSuccess(liveLessonData)) {
         return console.log('Error loading meeting data.');
       }
 
-      // Open meeting in a new tab.
       const {
         meeting: { url, token },
       } = liveLessonData;
@@ -72,13 +68,44 @@ zooom.init = async function () {
     lessonsList.appendChild(lessonItem);
   });
 
+  // The magic happens here.
   const panel = zooom.createContainer('div');
   panel.appendChild(lessonsList);
-
   document.body.appendChild(panel);
 };
 
+//
 // Helpers.
+//
+zooom.queryServiceForJson = async (endpoint, payload) => {
+  const SERVICE_BASE = 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/';
+
+  const response = await fetch(`${SERVICE_BASE}${endpoint}`, {
+    headers: {
+      accept: 'json',
+      'accept-language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+      'content-type': 'application/x-www-form-urlencoded',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-site',
+    },
+    method: 'POST',
+    body: zooom.jsonToFormData(payload),
+    mode: 'cors',
+    credentials: 'include',
+  });
+  return await response.json();
+};
+
+zooom.jsonToFormData = (jsonObj) => {
+  const tokens = [];
+  for (const key in jsonObj) {
+    const value = jsonObj[key];
+    tokens.push(`${key}=${value}`);
+  }
+  return tokens.join('&');
+};
+
 zooom.isSuccess = (data) => {
   return data.operationCode == 200 && data.success;
 };
@@ -100,7 +127,7 @@ zooom.createContainer = (element) => {
 
 // Wait until Angular is loaded.
 zooom.initWatcher = setInterval(function () {
-  console.log('Watching...');
+  console.log('Waiting...');
   if (unsafeWindow.angular) {
     clearInterval(zooom.initWatcher);
     zooom.init();
