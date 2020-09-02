@@ -1,12 +1,6 @@
-<div style="display: flex;">
-   <img 
-      style="display: inline-block; padding: 4px;" 
-      src="assets/logo256.png" width="32" height="32"
-   />
-   <h1 style="display: inline-block; padding: 4px;">
-      EBA~Zoom Link
-   </h1>
-</div>
+<img src="assets/logo256.png" width="32" height="32" align="left" style="margin-right: 6px"/>
+EBA~Zoom Link
+======
 
 ## Nedir?
 
