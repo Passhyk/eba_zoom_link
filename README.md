@@ -17,6 +17,7 @@ EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamas�
 5. Hepsi bu!
 
    Aktif canlı dersleriniz sayfanın alt bölümünde listelenecektir. İlgili derse tıklayarak Zoom uygulaması üzerinden derse katılabilirsiniz. 🎓
+
    _(Tarayıcınızın uyarması/engellemesi durumunda açılır pencerelere izin vermeyi unutmayın.)_
 
 ### Notlar
