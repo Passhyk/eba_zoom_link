@@ -26,7 +26,7 @@ EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamas�
 
 2. Dilediğiniz zaman Tampermonkey eklenti seçeneklerinden betiği devredışı bırakabilirsiniz.
 
-3. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı güncellemeyi deneyin. Sorun devam ederse <a href="/issues">issue</a> açmaktan çekinmeyin. 😊
+3. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı güncellemeyi deneyin. Sorun devam ederse [issue](/../../issues) açmaktan çekinmeyin. 😊
 
 4. Aşağıdaki gibi bir ekranla karşılaşırsanız, `Canlı derse katılmak istemiyorum. EBA Akademik Desteğe devam et.` seçeneği ile ilerleyin. Dersleriniz devam eden sayfada listelenecektir.
 
