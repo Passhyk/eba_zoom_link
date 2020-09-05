@@ -119,7 +119,7 @@ zooom.init = async function () {
 // Helpers.
 //
 zooom.queryServiceForJson = async (config) => {
-  const { url, method, headers, body } = config;
+  const { url, method, headers, body = '' } = config;
   let result = {};
 
   try {
