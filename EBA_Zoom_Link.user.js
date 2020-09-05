@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EBA~Zoom Link
-// @version      0.2.2
+// @version      0.2.3
 // @namespace    https://ders.eba.gov.tr/
 // @description  EBA canlı derslerine Zoom uygulaması üzerinden ulaşın!
 // @author       Çağlar Turalı
@@ -79,13 +79,9 @@ zooom.init = async function () {
     const dates = `(${new Date(startdate).toLocaleString()} - ${new Date(enddate).toLocaleString()})`;
 
     const lessonItem = document.createElement('li');
-    lessonItem.style.padding = '4px';
     lessonItem.style.listStyle = 'none';
 
-    const info = document.createElement('span');
-    info.innerText = `${title} ${dates}`;
-    info.style.cursor = 'pointer';
-    info.title = `${ownerName} ${ownerSurname}`;
+    const info = zooom.createLink(`${title} ${dates}`, `${ownerName} ${ownerSurname}`);
 
     // When clicked, (try to) open meeting in a new tab.
     info.onclick = async () => {
@@ -170,6 +166,25 @@ zooom.createContainer = (element) => {
   el.style.zIndex = 10000;
   el.style.padding = '10px';
   el.style.textAlign = 'center';
+
+  const hideBtn = zooom.createLink('[GİZLE (5sn)]', '', 'p');
+  hideBtn.onclick = () => {
+    el.style.display = 'none';
+    setTimeout(() => {
+      el.style.display = 'block';
+    }, 5000);
+  };
+  el.prepend(hideBtn);
+
+  return el;
+};
+
+zooom.createLink = (text, title, element = 'span') => {
+  const el = document.createElement(element);
+  el.innerText = text;
+  el.title = title;
+  el.style.cursor = 'pointer';
+  el.style.padding = '4px';
   return el;
 };
 
