@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EBA~Zoom Link
-// @version      0.2.1
+// @version      0.2.2
 // @namespace    https://ders.eba.gov.tr/
 // @description  EBA canlı derslerine Zoom uygulaması üzerinden ulaşın!
 // @author       Çağlar Turalı
@@ -17,18 +17,58 @@
 // Global object to attach everything into.
 const zooom = {};
 
+zooom.CONFIG = {
+  student: {
+    base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    studytime(payload) {
+      return {
+        url: `${this.base}/studytime/getstudentstudytime`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: zooom.jsonToFormData(payload),
+      };
+    },
+    livelesson(payload) {
+      return {
+        url: `${this.base}/livelesson/instudytime/start`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: zooom.jsonToFormData(payload),
+      };
+    },
+  },
+  teacher: {
+    base: 'https://ders.eba.gov.tr/ders',
+    livelesson() {
+      return {
+        url: `${this.base}/getlivelessoninfo`,
+        method: 'GET',
+      };
+    },
+  },
+};
+
 // Do the processing.
 zooom.init = async function () {
   // Get the list of live lessons.
-  const studyTimeData = await zooom.queryServiceForJson('/studytime/getstudentstudytime', {
+  const studyTimeConfig = zooom.CONFIG.student.studytime({
     status: 1,
     type: 2,
     pagesize: 25,
     pagenumber: 0,
   });
+  const studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
 
-  if (!(zooom.isSuccess(studyTimeData) && studyTimeData.totalRecords > 0)) {
-    return console.log('No live lessons found.');
+  if (!zooom.isSuccess(studyTimeData)) {
+    return zooom.print('Unable to load study time data');
+  }
+
+  if (!(studyTimeData.totalRecords > 0)) {
+    return zooom.print('No live lessons found');
   }
 
   // Container for lesson entries.
@@ -49,13 +89,14 @@ zooom.init = async function () {
 
     // When clicked, (try to) open meeting in a new tab.
     info.onclick = async () => {
-      const liveLessonData = await zooom.queryServiceForJson('/livelesson/instudytime/start', {
+      const liveLessonConfig = zooom.CONFIG.student.livelesson({
         studytimeid: id,
         tokentype: 'sometokentype',
       });
+      const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
 
       if (!zooom.isSuccess(liveLessonData)) {
-        return console.log('Error loading meeting data.');
+        return zooom.print('Unable to load meeting data');
       }
 
       const {
@@ -77,24 +118,31 @@ zooom.init = async function () {
 //
 // Helpers.
 //
-zooom.queryServiceForJson = async (endpoint, payload) => {
-  const SERVICE_BASE = 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/';
+zooom.queryServiceForJson = async (config) => {
+  const { url, method, headers, body } = config;
+  let result = {};
 
-  const response = await fetch(`${SERVICE_BASE}${endpoint}`, {
-    headers: {
-      accept: 'json',
-      'accept-language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-      'content-type': 'application/x-www-form-urlencoded',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-site',
-    },
-    method: 'POST',
-    body: zooom.jsonToFormData(payload),
-    mode: 'cors',
-    credentials: 'include',
-  });
-  return await response.json();
+  try {
+    const response = await fetch(url, {
+      method,
+      body,
+      headers: {
+        accept: 'json',
+        'accept-language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+        'content-type': 'application/x-www-form-urlencoded',
+        ...headers,
+      },
+      mode: 'cors',
+      credentials: 'include',
+    });
+    if (response.status === 200) {
+      result = await response.json();
+    }
+  } catch (error) {
+    zooom.print(`Error while loading ${url}\n\t${error}`);
+  } finally {
+    return result;
+  }
 };
 
 zooom.jsonToFormData = (jsonObj) => {
@@ -107,7 +155,7 @@ zooom.jsonToFormData = (jsonObj) => {
 };
 
 zooom.isSuccess = (data) => {
-  return data.operationCode == 200 && data.success;
+  return data != {} && data.operationCode == 200 && data.success;
 };
 
 zooom.createContainer = (element) => {
@@ -125,9 +173,11 @@ zooom.createContainer = (element) => {
   return el;
 };
 
+zooom.print = console.log;
+
 // Wait until Angular is loaded.
 zooom.initWatcher = setInterval(function () {
-  console.log('Waiting...');
+  zooom.print('Waiting...');
   if (unsafeWindow.angular) {
     clearInterval(zooom.initWatcher);
     zooom.init();
