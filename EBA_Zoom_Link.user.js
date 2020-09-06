@@ -41,6 +41,15 @@ zooom.CONFIG = {
       };
     },
   },
+  studentFallback:{
+    base: 'https://ders.eba.gov.tr/',
+    livelesson() {
+      return {
+        url: `${this.base}/getlivelessoninfo`,
+        method: 'GET',
+      }
+    }
+  },
   teacher: {
     base: 'https://ders.eba.gov.tr/ders',
     livelesson() {
@@ -64,7 +73,14 @@ zooom.init = async function () {
   const studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
 
   if (!zooom.isSuccess(studyTimeData)) {
-    return zooom.print('Unable to load study time data');
+    zooom.print('Unable to load study time data. Falling Back to getlivelessoninfo.');
+    const liveLessonData = await zooom.queryServiceForJson(zooom.CONFIG.studentFallback.livelesson());
+    if (!zooom.isSuccess(liveLessonData)) {
+      return zooom.print('Unable to load meeting data');
+    }
+    var m=liveLessonData.json();
+    unsafeWindow.open(m.liveLessonInfo.meetingJoinUrl+"?pwd="+m.liveLessonInfo.meetingPassword);
+    return;
   }
 
   if (!(studyTimeData.totalRecords > 0)) {
