@@ -41,6 +41,15 @@ zooom.CONFIG = {
       };
     },
   },
+  studentFallback:{
+    base: 'https://ders.eba.gov.tr/',
+    livelesson() {
+      return {
+        url: `${this.base}/getlivelessoninfo`,
+        method: 'GET',
+      }
+    }
+  },
   teacher: {
     base: 'https://ders.eba.gov.tr/ders',
     livelesson() {
@@ -64,7 +73,14 @@ zooom.init = async function () {
   const studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
 
   if (!zooom.isSuccess(studyTimeData)) {
-    return zooom.print('Unable to load study time data');
+    zooom.print('Unable to load study time data. Falling Back to getlivelessoninfo.');
+    const liveLessonData = await zooom.queryServiceForJson(zooom.CONFIG.studentFallback.livelesson());
+    if (!zooom.isSuccess(liveLessonData)) {
+      return zooom.print('Unable to load meeting data');
+    }
+    var m=liveLessonData.json();
+    unsafeWindow.open(m.liveLessonInfo.meetingJoinUrl+"?pwd="+m.liveLessonInfo.meetingPassword);
+    return;
   }
 
   if (!(studyTimeData.totalRecords > 0)) {
@@ -115,7 +131,8 @@ zooom.init = async function () {
 // Helpers.
 //
 zooom.queryServiceForJson = async (config) => {
-  const { url, method, headers, body = '' } = config;
+  const { url, method, headers, body = undefined } = config;
+
   let result = {};
 
   try {
@@ -166,18 +183,34 @@ zooom.createContainer = (element) => {
   el.style.zIndex = 10000;
   el.style.padding = '10px';
   el.style.textAlign = 'center';
+  el.style.display = 'block';
 
-  const hideBtn = zooom.createLink('[GİZLE (5sn)]', '', 'p');
-  hideBtn.onclick = () => {
-    el.style.display = 'none';
-    setTimeout(() => {
+  const hideBtn = zooom.createHideButton('Gizle');
+  hideBtn.onclick = function () {
+    if(el.style.display == 'none') { 
       el.style.display = 'block';
-    }, 5000);
+      hideBtn.innerText = 'Gizle';
+    }
+    else {
+      el.style.display = 'none';
+      hideBtn.innerText = 'Göster';
+    }
   };
-  el.prepend(hideBtn);
+  document.body.append(hideBtn);
 
   return el;
 };
+zooom.createHideButton = (text) => {
+  const el = document.createElement("button")
+  el.innerText = text;
+  el.style.cursor = 'pointer';
+  el.style.position = "fixed";
+  el.style.bottom = "10px";
+  el.style.right = "10px";
+  el.style.color = "black";
+  el.style.zIndex = 10001;
+  return el;
+}
 
 zooom.createLink = (text, title, element = 'span') => {
   const el = document.createElement(element);
