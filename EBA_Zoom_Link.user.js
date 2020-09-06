@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EBA~Zoom Link
-// @version      0.2.3
+// @version      0.2.4
 // @namespace    https://ders.eba.gov.tr/
 // @description  EBA canlı derslerine Zoom uygulaması üzerinden ulaşın!
 // @author       Çağlar Turalı
@@ -41,14 +41,14 @@ zooom.CONFIG = {
       };
     },
   },
-  studentFallback:{
+  studentFallback: {
     base: 'https://ders.eba.gov.tr/',
     livelesson() {
       return {
         url: `${this.base}/getlivelessoninfo`,
         method: 'GET',
-      }
-    }
+      };
+    },
   },
   teacher: {
     base: 'https://ders.eba.gov.tr/ders',
@@ -74,12 +74,22 @@ zooom.init = async function () {
 
   if (!zooom.isSuccess(studyTimeData)) {
     zooom.print('Unable to load study time data. Falling Back to getlivelessoninfo.');
-    const liveLessonData = await zooom.queryServiceForJson(zooom.CONFIG.studentFallback.livelesson());
+
+    const liveLessonConfig = zooom.CONFIG.studentFallback.livelesson();
+    const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
+
     if (!zooom.isSuccess(liveLessonData)) {
       return zooom.print('Unable to load meeting data');
     }
-    var m=liveLessonData.json();
-    unsafeWindow.open(m.liveLessonInfo.meetingJoinUrl+"?pwd="+m.liveLessonInfo.meetingPassword);
+
+    // TODO: rework!
+    // Maybe use studyTimeId to create lesson entry?
+    const {
+      meetingJoinUrl,
+      meetingPassword,
+      studyTime: { studyTimeId, studyTimeTitle, courseName },
+    } = liveLessonData;
+    unsafeWindow.open(`${meetingJoinUrl}?pwd=${meetingPassword}`);
     return;
   }
 
@@ -97,25 +107,7 @@ zooom.init = async function () {
     const lessonItem = document.createElement('li');
     lessonItem.style.listStyle = 'none';
 
-    const info = zooom.createLink(`${title} ${dates}`, `${ownerName} ${ownerSurname}`);
-
-    // When clicked, (try to) open meeting in a new tab.
-    info.onclick = async () => {
-      const liveLessonConfig = zooom.CONFIG.student.livelesson({
-        studytimeid: id,
-        tokentype: 'sometokentype',
-      });
-      const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
-
-      if (!zooom.isSuccess(liveLessonData)) {
-        return zooom.print('Unable to load meeting data');
-      }
-
-      const {
-        meeting: { url, token },
-      } = liveLessonData;
-      unsafeWindow.open(`${url}?tk=${token}`);
-    };
+    const info = zooom.createStudentLessonEntry(`${title} ${dates}`, `${ownerName} ${ownerSurname}`, id);
 
     lessonItem.appendChild(info);
     lessonsList.appendChild(lessonItem);
@@ -158,6 +150,30 @@ zooom.queryServiceForJson = async (config) => {
   }
 };
 
+zooom.createStudentLessonEntry = (text, title, studytimeid) => {
+  const entry = zooom.createLink(text, title);
+
+  // When clicked, (try to) open meeting in a new tab.
+  entry.onclick = async () => {
+    const liveLessonConfig = zooom.CONFIG.student.livelesson({
+      studytimeid,
+      tokentype: 'sometokentype',
+    });
+    const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
+
+    if (!zooom.isSuccess(liveLessonData)) {
+      return zooom.print('Unable to load meeting data');
+    }
+
+    const {
+      meeting: { url, token },
+    } = liveLessonData;
+    unsafeWindow.open(`${url}?tk=${token}`);
+  };
+
+  return entry;
+};
+
 zooom.jsonToFormData = (jsonObj) => {
   const tokens = [];
   for (const key in jsonObj) {
@@ -187,11 +203,10 @@ zooom.createContainer = (element) => {
 
   const hideBtn = zooom.createHideButton('Gizle');
   hideBtn.onclick = function () {
-    if(el.style.display == 'none') { 
+    if (el.style.display == 'none') {
       el.style.display = 'block';
       hideBtn.innerText = 'Gizle';
-    }
-    else {
+    } else {
       el.style.display = 'none';
       hideBtn.innerText = 'Göster';
     }
@@ -200,17 +215,18 @@ zooom.createContainer = (element) => {
 
   return el;
 };
+
 zooom.createHideButton = (text) => {
-  const el = document.createElement("button")
+  const el = document.createElement('button');
   el.innerText = text;
   el.style.cursor = 'pointer';
-  el.style.position = "fixed";
-  el.style.bottom = "10px";
-  el.style.right = "10px";
-  el.style.color = "black";
+  el.style.position = 'fixed';
+  el.style.bottom = '10px';
+  el.style.right = '10px';
+  el.style.color = 'black';
   el.style.zIndex = 10001;
   return el;
-}
+};
 
 zooom.createLink = (text, title, element = 'span') => {
   const el = document.createElement(element);
