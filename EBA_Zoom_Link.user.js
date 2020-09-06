@@ -166,18 +166,34 @@ zooom.createContainer = (element) => {
   el.style.zIndex = 10000;
   el.style.padding = '10px';
   el.style.textAlign = 'center';
+  el.style.display = 'block';
 
-  const hideBtn = zooom.createLink('[GİZLE (5sn)]', '', 'p');
-  hideBtn.onclick = () => {
-    el.style.display = 'none';
-    setTimeout(() => {
+  const hideBtn = zooom.createHideButton('Gizle');
+  hideBtn.onclick = function () {
+    if(el.style.display == 'none') { 
       el.style.display = 'block';
-    }, 5000);
+      hideBtn.innerText = 'Gizle';
+    }
+    else {
+      el.style.display = 'none';
+      hideBtn.innerText = 'Göster';
+    }
   };
-  el.prepend(hideBtn);
+  document.body.append(hideBtn);
 
   return el;
 };
+zooom.createHideButton = (text) => {
+  const el = document.createElement("button")
+  el.innerText = text;
+  el.style.cursor = 'pointer';
+  el.style.position = "fixed";
+  el.style.bottom = "10px";
+  el.style.right = "10px";
+  el.style.color = "black";
+  el.style.zIndex = 10001;
+  return el;
+}
 
 zooom.createLink = (text, title, element = 'span') => {
   const el = document.createElement(element);
