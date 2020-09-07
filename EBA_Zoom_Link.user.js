@@ -92,22 +92,24 @@ zooom.init = async function () {
     if (!zooom.isSuccess(StudyTimeData)) {
       return zooom.print('Unable to load meeting data');
     }
-
-    // TODO: rework!
-    // Maybe use studyTimeId to create lesson entry?
+    
     const {
       liveLessonInfo: { studyTime : {studyTimeId, studyTimeTitle, ownerName, startDate, endDate} }
     } = StudyTimeData;
+    
     const panel = zooom.createContainer('div');
     const list = document.createElement('ul');
     const item = document.createElement('li');
     item.style.listStyle = 'none';
+    
     const dates = `(${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()})`;
     const info = zooom.createStudentLessonEntry(`${studyTimeTitle} ${dates}`, `${ownerName}`, studyTimeId,zooom.CONFIG.studentFallback);
+    
     item.appendChild(info);
     list.appendChild(item);
     panel.appendChild(list);
     document.body.appendChild(panel);
+    
     return;
   }
 
@@ -264,8 +266,8 @@ zooom.print = console.log;
     clearInterval(zooom.initWatcher);
     zooom.init();
   }
-}, 500);*/
-window.onload=zooom.init();
+}, 500);*/ //Doesn't work on LiveMiddleWare
+window.onload=zooom.init;
 
 // Just in case..
 unsafeWindow.zooom = zooom;
