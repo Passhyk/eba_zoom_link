@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         EBA~Zoom Link
-// @version      0.2.4
+// @version      0.2.5
 // @namespace    https://ders.eba.gov.tr/
 // @description  EBA canlı derslerine Zoom uygulaması üzerinden ulaşın!
 // @author       Çağlar Turalı
@@ -50,7 +50,7 @@ zooom.CONFIG = {
         method: 'GET',
       };
     },
-    livelesson(payload){
+    livelesson(payload) {
       return {
         url: `${this.appBase}/livelesson/inpage/instudytime/start`,
         method: 'POST',
@@ -63,7 +63,7 @@ zooom.CONFIG = {
   },
   teacher: {
     base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
-    studytime(payload){
+    studytime(payload) {
       return {
         url: `${this.base}/studytime/getteacherstudytime`,
         method: 'POST',
@@ -73,7 +73,7 @@ zooom.CONFIG = {
         body: zooom.jsonToFormData(payload),
       };
     },
-    livelesson(payload){
+    livelesson(payload) {
       return {
         url: `${this.base}/livelesson/instudytime/start`,
         method: 'POST',
@@ -97,7 +97,7 @@ zooom.init = async function () {
     pagenumber: 0,
   });
   var studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
-  if(!zooom.isSuccess(studyTimeData)){
+  if (!zooom.isSuccess(studyTimeData)) {
     studyTimeConfig = zooom.CONFIG.student.studytime({
       status: 1,
       type: 2,
@@ -106,20 +106,22 @@ zooom.init = async function () {
     });
     studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
   }
-  console.info(studyTimeConfig);
+
   if (!zooom.isSuccess(studyTimeData)) {
     zooom.print('Unable to load study time data. Falling Back to getlivelessoninfo.');
 
     const liveLessonConfig = zooom.CONFIG.studentFallback.studytime();
-    const StudyTimeData = await zooom.queryServiceForJson(liveLessonConfig);
+    const studyTimeData = await zooom.queryServiceForJson(liveLessonConfig);
 
-    if (!zooom.isSuccess(StudyTimeData)) {
+    if (!zooom.isSuccess(studyTimeData)) {
       return zooom.print('Unable to load meeting data');
     }
 
     const {
-      liveLessonInfo: { studyTime : {studyTimeId, studyTimeTitle, ownerName, startDate, endDate} }
-    } = StudyTimeData;
+      liveLessonInfo: {
+        studyTime: { studyTimeId, studyTimeTitle, ownerName, startDate, endDate },
+      },
+    } = studyTimeData;
 
     const panel = zooom.createContainer('div');
     const list = document.createElement('ul');
@@ -127,7 +129,12 @@ zooom.init = async function () {
     item.style.listStyle = 'none';
 
     const dates = `(${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()})`;
-    const info = zooom.createStudentLessonEntry(`${studyTimeTitle} ${dates}`, `${ownerName}`, studyTimeId,zooom.CONFIG.studentFallback);
+    const info = zooom.createStudentLessonEntry(
+      `${studyTimeTitle} ${dates}`,
+      `${ownerName}`,
+      studyTimeId,
+      zooom.CONFIG.studentFallback,
+    );
 
     item.appendChild(info);
     list.appendChild(item);
@@ -151,7 +158,12 @@ zooom.init = async function () {
     const lessonItem = document.createElement('li');
     lessonItem.style.listStyle = 'none';
 
-    const info = zooom.createStudentLessonEntry(`${title} ${dates}`, `${ownerName} ${ownerSurname}`, id,zooom.CONFIG.student);
+    const info = zooom.createStudentLessonEntry(
+      `${title} ${dates}`,
+      `${ownerName} ${ownerSurname}`,
+      id,
+      zooom.CONFIG.student,
+    );
 
     lessonItem.appendChild(info);
     lessonsList.appendChild(lessonItem);
@@ -194,7 +206,7 @@ zooom.queryServiceForJson = async (config) => {
   }
 };
 
-zooom.createStudentLessonEntry = (text, title, studytimeid,config) => {
+zooom.createStudentLessonEntry = (text, title, studytimeid, config) => {
   const entry = zooom.createLink(text, title);
 
   // When clicked, (try to) open meeting in a new tab.
@@ -281,7 +293,7 @@ zooom.createLink = (text, title, element = 'span') => {
   return el;
 };
 
-zooom.print = console.log;
+zooom.print = console.log; //Doesn't work on LiveMiddleWare
 
 // Wait until Angular is loaded.
 /*zooom.initWatcher = setInterval(function () {
@@ -290,8 +302,8 @@ zooom.print = console.log;
     clearInterval(zooom.initWatcher);
     zooom.init();
   }
-}, 500);*/ //Doesn't work on LiveMiddleWare
-window.onload=zooom.init;
+}, 500);*/ window.onload =
+  zooom.init;
 
 // Just in case..
 unsafeWindow.zooom = zooom;
