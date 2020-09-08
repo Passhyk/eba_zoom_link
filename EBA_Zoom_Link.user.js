@@ -42,20 +42,45 @@ zooom.CONFIG = {
     },
   },
   studentFallback: {
-    base: 'https://ders.eba.gov.tr/',
-    livelesson() {
+    base: 'https://ders.eba.gov.tr/ders',
+    appBase: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    studytime() {
       return {
         url: `${this.base}/getlivelessoninfo`,
         method: 'GET',
       };
     },
+    livelesson(payload){
+      return {
+        url: `${this.appBase}/livelesson/inpage/instudytime/start`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: zooom.jsonToFormData(payload),
+      };
+    },
   },
   teacher: {
-    base: 'https://ders.eba.gov.tr/ders',
-    livelesson() {
+    base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    studytime(payload){
       return {
-        url: `${this.base}/getlivelessoninfo`,
-        method: 'GET',
+        url: `${this.base}/studytime/getteacherstudytime`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: zooom.jsonToFormData(payload),
+      };
+    },
+    livelesson(payload){
+      return {
+        url: `${this.base}/livelesson/instudytime/start`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: zooom.jsonToFormData(payload),
       };
     },
   },
@@ -64,32 +89,51 @@ zooom.CONFIG = {
 // Do the processing.
 zooom.init = async function () {
   // Get the list of live lessons.
-  const studyTimeConfig = zooom.CONFIG.student.studytime({
+  // The POST body is not so important (I think...)
+  var studyTimeConfig = zooom.CONFIG.teacher.studytime({
     status: 1,
     type: 2,
     pagesize: 25,
     pagenumber: 0,
   });
-  const studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
-
+  var studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+  if(!zooom.isSuccess(studyTimeData)){
+    studyTimeConfig = zooom.CONFIG.student.studytime({
+      status: 1,
+      type: 2,
+      pagesize: 25,
+      pagenumber: 0,
+    });
+    studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+  }
+  console.info(studyTimeConfig);
   if (!zooom.isSuccess(studyTimeData)) {
     zooom.print('Unable to load study time data. Falling Back to getlivelessoninfo.');
 
-    const liveLessonConfig = zooom.CONFIG.studentFallback.livelesson();
-    const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
+    const liveLessonConfig = zooom.CONFIG.studentFallback.studytime();
+    const StudyTimeData = await zooom.queryServiceForJson(liveLessonConfig);
 
-    if (!zooom.isSuccess(liveLessonData)) {
+    if (!zooom.isSuccess(StudyTimeData)) {
       return zooom.print('Unable to load meeting data');
     }
 
-    // TODO: rework!
-    // Maybe use studyTimeId to create lesson entry?
     const {
-      meetingJoinUrl,
-      meetingPassword,
-      studyTime: { studyTimeId, studyTimeTitle, courseName },
-    } = liveLessonData;
-    unsafeWindow.open(`${meetingJoinUrl}?pwd=${meetingPassword}`);
+      liveLessonInfo: { studyTime : {studyTimeId, studyTimeTitle, ownerName, startDate, endDate} }
+    } = StudyTimeData;
+
+    const panel = zooom.createContainer('div');
+    const list = document.createElement('ul');
+    const item = document.createElement('li');
+    item.style.listStyle = 'none';
+
+    const dates = `(${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()})`;
+    const info = zooom.createStudentLessonEntry(`${studyTimeTitle} ${dates}`, `${ownerName}`, studyTimeId,zooom.CONFIG.studentFallback);
+
+    item.appendChild(info);
+    list.appendChild(item);
+    panel.appendChild(list);
+    document.body.appendChild(panel);
+
     return;
   }
 
@@ -107,7 +151,7 @@ zooom.init = async function () {
     const lessonItem = document.createElement('li');
     lessonItem.style.listStyle = 'none';
 
-    const info = zooom.createStudentLessonEntry(`${title} ${dates}`, `${ownerName} ${ownerSurname}`, id);
+    const info = zooom.createStudentLessonEntry(`${title} ${dates}`, `${ownerName} ${ownerSurname}`, id,zooom.CONFIG.student);
 
     lessonItem.appendChild(info);
     lessonsList.appendChild(lessonItem);
@@ -150,12 +194,12 @@ zooom.queryServiceForJson = async (config) => {
   }
 };
 
-zooom.createStudentLessonEntry = (text, title, studytimeid) => {
+zooom.createStudentLessonEntry = (text, title, studytimeid,config) => {
   const entry = zooom.createLink(text, title);
 
   // When clicked, (try to) open meeting in a new tab.
   entry.onclick = async () => {
-    const liveLessonConfig = zooom.CONFIG.student.livelesson({
+    const liveLessonConfig = config.livelesson({
       studytimeid,
       tokentype: 'sometokentype',
     });
@@ -240,13 +284,14 @@ zooom.createLink = (text, title, element = 'span') => {
 zooom.print = console.log;
 
 // Wait until Angular is loaded.
-zooom.initWatcher = setInterval(function () {
+/*zooom.initWatcher = setInterval(function () {
   zooom.print('Waiting...');
   if (unsafeWindow.angular) {
     clearInterval(zooom.initWatcher);
     zooom.init();
   }
-}, 500);
+}, 500);*/ //Doesn't work on LiveMiddleWare
+window.onload=zooom.init;
 
 // Just in case..
 unsafeWindow.zooom = zooom;
