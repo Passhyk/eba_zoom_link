@@ -58,15 +58,29 @@ zooom.CONFIG = {
           'content-type': 'application/x-www-form-urlencoded',
         },
         body: zooom.jsonToFormData(payload),
-      }
-    }
+      };
+    },
   },
   teacher: {
-    base: 'https://ders.eba.gov.tr/ders',
-    livelesson() {
+    base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    studytime(payload){
       return {
-        url: `${this.base}/getlivelessoninfo`,
-        method: 'GET',
+        url: `${this.base}/studytime/getteacherstudytime`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: zooom.jsonToFormData(payload),
+      };
+    },
+    livelesson(payload){
+      return {
+        url: `${this.base}/livelesson/instudytime/start`,
+        method: 'POST',
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+        body: zooom.jsonToFormData(payload),
       };
     },
   },
@@ -75,14 +89,24 @@ zooom.CONFIG = {
 // Do the processing.
 zooom.init = async function () {
   // Get the list of live lessons.
-  const studyTimeConfig = zooom.CONFIG.student.studytime({
+  // The POST body is not so important (I think...)
+  var studyTimeConfig = zooom.CONFIG.teacher.studytime({
     status: 1,
     type: 2,
     pagesize: 25,
     pagenumber: 0,
   });
-  const studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
-
+  var studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+  if(!zooom.isSuccess(studyTimeData)){
+    studyTimeConfig = zooom.CONFIG.student.studytime({
+      status: 1,
+      type: 2,
+      pagesize: 25,
+      pagenumber: 0,
+    });
+    studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+  }
+  console.info(studyTimeConfig);
   if (!zooom.isSuccess(studyTimeData)) {
     zooom.print('Unable to load study time data. Falling Back to getlivelessoninfo.');
 
@@ -92,24 +116,24 @@ zooom.init = async function () {
     if (!zooom.isSuccess(StudyTimeData)) {
       return zooom.print('Unable to load meeting data');
     }
-    
+
     const {
       liveLessonInfo: { studyTime : {studyTimeId, studyTimeTitle, ownerName, startDate, endDate} }
     } = StudyTimeData;
-    
+
     const panel = zooom.createContainer('div');
     const list = document.createElement('ul');
     const item = document.createElement('li');
     item.style.listStyle = 'none';
-    
+
     const dates = `(${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()})`;
     const info = zooom.createStudentLessonEntry(`${studyTimeTitle} ${dates}`, `${ownerName}`, studyTimeId,zooom.CONFIG.studentFallback);
-    
+
     item.appendChild(info);
     list.appendChild(item);
     panel.appendChild(list);
     document.body.appendChild(panel);
-    
+
     return;
   }
 
