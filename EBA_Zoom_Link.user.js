@@ -11,6 +11,7 @@
 // @match        http*://ders.eba.gov.tr/*
 // @connect      eba.gov.tr
 // @grant        GM_xmlhttpRequest
+// @noframes
 // @run-at       document-end
 // ==/UserScript==
 
