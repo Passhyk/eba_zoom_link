@@ -263,16 +263,21 @@ zooom.createContainer = (element) => {
   el.style.zIndex = 10000;
   el.style.padding = '10px';
   el.style.textAlign = 'center';
-  el.style.display = 'block';
+  if(!window.localStorage.LiveLessonListClosed){
+    window.localStorage.LiveLessonListClosed = '0';
+  }
+  el.style.display = window.localStorage.LiveLessonListClosed == '1' ? 'none' : 'block';
 
-  const hideBtn = zooom.createHideButton('Gizle');
+  const hideBtn = zooom.createHideButton(window.localStorage.LiveLessonListClosed == '1' ? 'Göster' : 'Gizle');
   hideBtn.onclick = function () {
     if (el.style.display == 'none') {
       el.style.display = 'block';
       hideBtn.innerText = 'Gizle';
+      window.localStorage.LiveLessonListClosed = '0';
     } else {
       el.style.display = 'none';
       hideBtn.innerText = 'Göster';
+      window.localStorage.LiveLessonListClosed = '1';
     }
   };
   document.body.append(hideBtn);
