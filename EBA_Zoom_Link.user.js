@@ -91,6 +91,7 @@ zooom.CONFIG = {
 zooom.init = async function () {
   // Get the list of live lessons.
   // The POST body is not so important (I think...)
+  var isTeacher;
   var studyTimeConfig = zooom.CONFIG.teacher.studytime({
     status: 1,
     type: 2,
@@ -106,6 +107,10 @@ zooom.init = async function () {
       pagenumber: 0,
     });
     studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+    isTeacher=false;
+  }
+  else{
+    isTeacher=true;
   }
 
   if (!zooom.isSuccess(studyTimeData)) {
@@ -130,11 +135,12 @@ zooom.init = async function () {
     item.style.listStyle = 'none';
 
     const dates = `(${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()})`;
-    const info = zooom.createStudentLessonEntry(
+    const info = zooom.createLiveLessonEntry(
       `${studyTimeTitle} ${dates}`,
       `${ownerName}`,
       studyTimeId,
       zooom.CONFIG.studentFallback,
+      isTeacher,
     );
 
     item.appendChild(info);
@@ -159,11 +165,12 @@ zooom.init = async function () {
     const lessonItem = document.createElement('li');
     lessonItem.style.listStyle = 'none';
 
-    const info = zooom.createStudentLessonEntry(
+    const info = zooom.createLiveLessonEntry(
       `${title} ${dates}`,
       `${ownerName} ${ownerSurname}`,
       id,
       zooom.CONFIG.student,
+      isTeacher,
     );
 
     lessonItem.appendChild(info);
@@ -207,14 +214,14 @@ zooom.queryServiceForJson = async (config) => {
   }
 };
 
-zooom.createStudentLessonEntry = (text, title, studytimeid, config) => {
+zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher) => {
   const entry = zooom.createLink(text, title);
 
   // When clicked, (try to) open meeting in a new tab.
   entry.onclick = async () => {
     const liveLessonConfig = config.livelesson({
       studytimeid,
-      tokentype: 'sometokentype',
+      tokentype: isTeacher ? 'zak' : 'sometokentype',
     });
     const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
 
@@ -225,7 +232,7 @@ zooom.createStudentLessonEntry = (text, title, studytimeid, config) => {
     const {
       meeting: { url, token },
     } = liveLessonData;
-    unsafeWindow.open(`${url}?tk=${token}`);
+    unsafeWindow.open(isTeacher ? `${url}?zak=${token}` : `${url}?tk=${token}`);
   };
 
   return entry;
