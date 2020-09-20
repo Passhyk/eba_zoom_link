@@ -171,6 +171,7 @@ zooom.init = async function () {
       id,
       zooom.CONFIG.student,
       isTeacher,
+      startdate,
     );
 
     lessonItem.appendChild(info);
@@ -214,25 +215,34 @@ zooom.queryServiceForJson = async (config) => {
   }
 };
 
-zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher) => {
+zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, startDate) => {
   const entry = zooom.createLink(text, title);
 
   // When clicked, (try to) open meeting in a new tab.
   entry.onclick = async () => {
-    const liveLessonConfig = config.livelesson({
-      studytimeid,
-      tokentype: isTeacher ? 'zak' : 'sometokentype',
-    });
-    const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
+    if (startDate < new Date().getTime()){
+      const liveLessonConfig = config.livelesson({
+        studytimeid,
+        tokentype: isTeacher ? 'zak' : 'sometokentype',
+      });
+      const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
 
-    if (!zooom.isSuccess(liveLessonData)) {
-      return zooom.print('Unable to load meeting data');
+      if (liveLessonData.operationMessage == 'studytimenotstarted'){
+        alert('Dersiniz Daha Başlamamış.');
+        throw new Error('Ders Başlatılmadı.');
+      }
+      else if (!zooom.isSuccess(liveLessonData)) {
+        return zooom.print('Unable to load meeting data');
+      }
+
+      const {
+        meeting: { url, token },
+      } = liveLessonData;
+      unsafeWindow.open(isTeacher ? `${url}?zak=${token}` : `${url}?tk=${token}`);
     }
-
-    const {
-      meeting: { url, token },
-    } = liveLessonData;
-    unsafeWindow.open(isTeacher ? `${url}?zak=${token}` : `${url}?tk=${token}`);
+    else{
+      alert('Dersiniz Daha Başlamamış.');
+    }
   };
 
   return entry;
