@@ -26,9 +26,11 @@ EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamas�
 
 2. Dilediğiniz zaman Tampermonkey eklenti seçeneklerinden betiği devredışı bırakabilirsiniz.
 
-3. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı güncellemeyi deneyin. Sorun devam ederse [issue](/../../issues) açmaktan çekinmeyin. 😊
+3. EBA API'sindeki değişiklikler nedeni ile artık derslere zamanından önce girememektesiniz [#13](../../issues/13).
 
-4. [eba-canli-ders.js](https://gist.github.com/sh4dowb/9ecdc521c7323411f3294d5126a2bfde) betiğinden esinlenilmiştir. @sh4dowb 👌
+4. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı güncellemeyi deneyin. Sorun devam ederse [issue](/../../issues) açmaktan çekinmeyin. 😊
+
+5. [eba-canli-ders.js](https://gist.github.com/sh4dowb/9ecdc521c7323411f3294d5126a2bfde) betiğinden esinlenilmiştir. @sh4dowb 👌
 
 ### Örnek Ekran Görüntüsü
 
