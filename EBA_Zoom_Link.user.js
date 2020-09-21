@@ -141,6 +141,7 @@ zooom.init = async function () {
       studyTimeId,
       zooom.CONFIG.studentFallback,
       isTeacher,
+      startDate,
     );
 
     item.appendChild(info);
