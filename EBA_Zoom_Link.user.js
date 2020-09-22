@@ -163,6 +163,7 @@ zooom.init = async function () {
 
   if (!(studyTimeData.totalRecords > 0)) {
     informText.innerText = "Planlanmış Canlı Dersiniz Bulunmamakta.";
+    setTimeout( () => document.getElementById('hideBtnEbaZoom').remove(), 5000);
     setTimeout( () => panel.remove(),5000);
     return zooom.print('No live lessons found');
   }
@@ -325,6 +326,7 @@ zooom.createContainer = (element) => {
 
 zooom.createHideButton = (text) => {
   const el = document.createElement('button');
+  el.id = 'hideBtnEbaZoom';
   el.innerText = text;
   el.style.cursor = 'pointer';
   el.style.position = 'fixed';
