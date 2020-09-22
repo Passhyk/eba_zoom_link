@@ -8,11 +8,11 @@
 // @updateURL    https://github.com/caglarturali/eba_zoom_link/raw/master/EBA_Zoom_Link.meta.js
 // @downloadURL  https://github.com/caglarturali/eba_zoom_link/raw/master/EBA_Zoom_Link.user.js
 // @icon         https://github.com/caglarturali/eba_zoom_link/raw/master/assets/logo256.png
-// @match        http*://ders.eba.gov.tr/*
+// @match        https://ders.eba.gov.tr/*
 // @connect      eba.gov.tr
 // @grant        GM_xmlhttpRequest
 // @noframes
-// @run-at       document-end
+// @run-at       document-start
 // ==/UserScript==
 
 // Global object to attach everything into.
@@ -89,8 +89,13 @@ zooom.CONFIG = {
 
 // Do the processing.
 zooom.init = async function () {
-  // Get the list of live lessons.
-  // The POST body is not so important (I think...)
+  const panel = zooom.createContainer('div');
+  panel.style.backgroundColor = '#3aa1d8';
+  panel.style.color = 'black';
+  let informText=document.createElement('span');
+  informText.innerText = 'Yükleniyor...';
+  panel.appendChild(informText);
+  document.body.appendChild(panel);
   var isTeacher;
   var studyTimeConfig = zooom.CONFIG.teacher.studytime({
     status: 1,
@@ -120,6 +125,9 @@ zooom.init = async function () {
     const studyTimeData = await zooom.queryServiceForJson(liveLessonConfig);
 
     if (!zooom.isSuccess(studyTimeData)) {
+      panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+      panel.style.color = 'white';
+      informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
       return zooom.print('Unable to load meeting data');
     }
 
@@ -129,7 +137,9 @@ zooom.init = async function () {
       },
     } = studyTimeData;
 
-    const panel = zooom.createContainer('div');
+    panel.style.backgroundColor = 'rgba(92, 184, 92, 0.9)';
+    panel.style.color = 'ghostwhite';
+    panel.innerHTML = '';
     const list = document.createElement('ul');
     const item = document.createElement('li');
     item.style.listStyle = 'none';
@@ -147,17 +157,22 @@ zooom.init = async function () {
     item.appendChild(info);
     list.appendChild(item);
     panel.appendChild(list);
-    document.body.appendChild(panel);
 
     return;
   }
 
   if (!(studyTimeData.totalRecords > 0)) {
+    informText.innerText = "Planlanmış Canlı Dersiniz Bulunmamakta.";
+    setTimeout( () => panel.remove(),5000);
     return zooom.print('No live lessons found');
   }
 
   // Container for lesson entries.
   const lessonsList = document.createElement('ul');
+
+  panel.style.backgroundColor = 'rgba(92, 184, 92, 0.9)';
+  panel.style.color = 'ghostwhite';
+  panel.innerHTML = '';
 
   studyTimeData.studyTimeList.forEach((studyTime) => {
     const { id, title, startdate, enddate, ownerName, ownerSurname } = studyTime;
@@ -180,40 +195,52 @@ zooom.init = async function () {
   });
 
   // The magic happens here.
-  const panel = zooom.createContainer('div');
   panel.appendChild(lessonsList);
-  document.body.appendChild(panel);
 };
 
 //
 // Helpers.
 //
+
+zooom.timeout = (ms, promise) => {
+  return new Promise(function(resolve, reject) {
+    setTimeout(() => reject(new Error("Timed Out.")) , ms);
+    promise.then(resolve, reject);
+  });
+}
+
 zooom.queryServiceForJson = async (config) => {
   const { url, method, headers, body } = config;
 
-  let result = {};
-
-  try {
-    const response = await fetch(url, {
-      method,
-      body,
-      headers: {
-        accept: 'json',
-        'accept-language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
-        'content-type': 'application/x-www-form-urlencoded',
-        ...headers,
-      },
-      mode: 'cors',
-      credentials: 'include',
-    });
-    if (response.status === 200) {
-      result = await response.json();
+  let result = {}, inc, response;
+  
+  for(inc=0;inc<5;inc++){
+    try {
+      response = await zooom.timeout(16000, fetch(url, {
+        method,
+        body,
+        headers: {
+          accept: 'json',
+          'accept-language': 'tr-TR,tr;q=0.9,en-US;q=0.8,en;q=0.7',
+          'content-type': 'application/x-www-form-urlencoded',
+          ...headers,
+        },
+        mode: 'cors',
+        credentials: 'include',
+      }));
+      if (response.status === 200) {
+        result = await response.json();
+        break;
+      }
+    } catch (error) {
+      if (result.status > 500) {
+        zooom.print('Erişim ile ilgili bir hata oluştu Deneme:',inc);
+        continue;
+      }
+      zooom.print(`Error while loading ${url}\n\t${error}`);
     }
-  } catch (error) {
-    zooom.print(`Error while loading ${url}\n\t${error}`);
-  } finally {
-    return result;
   }
+  return result;
 };
 
 zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, startDate) => {
@@ -326,8 +353,8 @@ zooom.print = console.log; //Doesn't work on LiveMiddleWare
     clearInterval(zooom.initWatcher);
     zooom.init();
   }
-}, 500);*/ window.onload =
-  zooom.init;
-
+}, 500); window.onload =
+  zooom.init; */
+zooom.init()
 // Just in case..
 unsafeWindow.zooom = zooom;
