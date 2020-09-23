@@ -162,6 +162,13 @@ zooom.init = async function () {
     return;
   }
 
+  if (studyTimeData == {}) {
+    panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+    panel.style.color = 'white';
+    informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
+    return zooom.print('Unable to load meeting data');
+  }
+
   if (!(studyTimeData.totalRecords > 0)) {
     informText.innerText = "Planlanmış Canlı Dersiniz Bulunmamakta.";
     setTimeout( () => document.getElementById('hideBtnEbaZoom').remove(), 5000);
