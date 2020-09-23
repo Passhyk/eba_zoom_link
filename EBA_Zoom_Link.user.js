@@ -96,30 +96,31 @@ zooom.init = async function () {
   informText.innerText = 'Yükleniyor...';
   panel.appendChild(informText);
   document.body.appendChild(panel);
-  var isTeacher;
-  var studyTimeConfig = zooom.CONFIG.teacher.studytime({
-    status: 1,
-    type: 2,
-    pagesize: 25,
-    pagenumber: 0,
-  });
-  var studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
-  if (!zooom.isSuccess(studyTimeData)) {
-    studyTimeConfig = zooom.CONFIG.student.studytime({
+  if (window.location.pathname.indexOf('liveMiddleware') < 0) {
+    var isTeacher;
+    var studyTimeConfig = zooom.CONFIG.teacher.studytime({
       status: 1,
       type: 2,
       pagesize: 25,
       pagenumber: 0,
     });
-    studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
-    isTeacher=false;
+    var studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+    if (!zooom.isSuccess(studyTimeData)) {
+      studyTimeConfig = zooom.CONFIG.student.studytime({
+        status: 1,
+        type: 2,
+        pagesize: 25,
+        pagenumber: 0,
+      });
+      studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+      isTeacher=false;
+    }
+    else{
+      isTeacher=true;
+    }
   }
   else{
-    isTeacher=true;
-  }
-
-  if (!zooom.isSuccess(studyTimeData)) {
-    zooom.print('Unable to load study time data. Falling Back to getlivelessoninfo.');
+    zooom.print('Falling Back to getlivelessoninfo.');
 
     const liveLessonConfig = zooom.CONFIG.studentFallback.studytime();
     const studyTimeData = await zooom.queryServiceForJson(liveLessonConfig);
@@ -217,7 +218,7 @@ zooom.queryServiceForJson = async (config) => {
   
   for(inc=0;inc<5;inc++){
     try {
-      response = await zooom.timeout(16000, fetch(url, {
+      response = await zooom.timeout( 16000, fetch(url, {
         method,
         body,
         headers: {
@@ -233,12 +234,23 @@ zooom.queryServiceForJson = async (config) => {
         result = await response.json();
         break;
       }
-    } catch (error) {
-      if (result.status > 500) {
+      if (response.status === 403){
+        break
+      }
+      if (response.status > 500){
         zooom.print('Erişim ile ilgili bir hata oluştu Deneme:',inc);
         continue;
       }
+    } catch (error) {
+      if (error instanceof TypeError) {
+        zooom.print('Erişim ile ilgili bir hata oluştu Deneme:',inc);
+        continue;
+      }
+      if (error.message == 'Timed Out.'){
+        continue;
+      }
       zooom.print(`Error while loading ${url}\n\t${error}`);
+      break;
     }
   }
   return result;
@@ -355,8 +367,7 @@ zooom.print = console.log; //Doesn't work on LiveMiddleWare
     clearInterval(zooom.initWatcher);
     zooom.init();
   }
-}, 500); window.onload =
-  zooom.init; */
-zooom.init()
+}, 500);*/ window.onload =
+  zooom.init;
 // Just in case..
 unsafeWindow.zooom = zooom;
