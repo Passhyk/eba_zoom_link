@@ -162,7 +162,7 @@ zooom.init = async function () {
     return;
   }
 
-  if (studyTimeData == {}) {
+  if (Object.entries(studyTimeData).length == 0) {
     panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
     panel.style.color = 'white';
     informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
