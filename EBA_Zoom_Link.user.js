@@ -114,53 +114,16 @@ zooom.init = async function () {
       });
       studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
       isTeacher=false;
+      if(!zooom.isSuccess(studyTimeData)) {
+        zooom.studentFallback(panel,informText,isTeacher);
+      }
     }
     else{
       isTeacher=true;
     }
   }
-  else{
-    zooom.print('Falling Back to getlivelessoninfo.');
 
-    const liveLessonConfig = zooom.CONFIG.studentFallback.studytime();
-    const studyTimeData = await zooom.queryServiceForJson(liveLessonConfig);
-
-    if (!zooom.isSuccess(studyTimeData)) {
-      panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
-      panel.style.color = 'white';
-      informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
-      return zooom.print('Unable to load meeting data');
-    }
-
-    const {
-      liveLessonInfo: {
-        studyTime: { studyTimeId, studyTimeTitle, ownerName, startDate, endDate },
-      },
-    } = studyTimeData;
-
-    panel.style.backgroundColor = 'rgba(92, 184, 92, 0.9)';
-    panel.style.color = 'ghostwhite';
-    panel.innerHTML = '';
-    const list = document.createElement('ul');
-    const item = document.createElement('li');
-    item.style.listStyle = 'none';
-
-    const dates = `(${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()})`;
-    const info = zooom.createLiveLessonEntry(
-      `${studyTimeTitle} ${dates}`,
-      `${ownerName}`,
-      studyTimeId,
-      zooom.CONFIG.studentFallback,
-      isTeacher,
-      startDate,
-    );
-
-    item.appendChild(info);
-    list.appendChild(item);
-    panel.appendChild(list);
-
-    return;
-  }
+  else zooom.studentFallback(panel,informText,isTeacher);
 
   if (Object.entries(studyTimeData).length == 0) {
     panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
@@ -222,7 +185,7 @@ zooom.queryServiceForJson = async (config) => {
   const { url, method, headers, body } = config;
 
   let result = {}, inc, response;
-  
+
   for(inc=0;inc<5;inc++){
     try {
       response = await zooom.timeout( 16000, fetch(url, {
@@ -262,6 +225,49 @@ zooom.queryServiceForJson = async (config) => {
   }
   return result;
 };
+
+zooom.studentFallback = async (panel,informText,isTeacher) => {
+  zooom.print('Falling Back to getlivelessoninfo.');
+
+  const liveLessonConfig = zooom.CONFIG.studentFallback.studytime();
+  const studyTimeData = await zooom.queryServiceForJson(liveLessonConfig);
+
+  if (!zooom.isSuccess(studyTimeData)) {
+    panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+    panel.style.color = 'white';
+    informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
+    return zooom.print('Unable to load meeting data');
+  }
+
+  const {
+    liveLessonInfo: {
+      studyTime: { studyTimeId, studyTimeTitle, ownerName, startDate, endDate },
+    },
+  } = studyTimeData;
+
+  panel.style.backgroundColor = 'rgba(92, 184, 92, 0.9)';
+  panel.style.color = 'ghostwhite';
+  panel.innerHTML = '';
+  const list = document.createElement('ul');
+  const item = document.createElement('li');
+  item.style.listStyle = 'none';
+
+  const dates = `(${new Date(startDate).toLocaleString()} - ${new Date(endDate).toLocaleString()})`;
+  const info = zooom.createLiveLessonEntry(
+    `${studyTimeTitle} ${dates}`,
+    `${ownerName}`,
+    studyTimeId,
+    zooom.CONFIG.studentFallback,
+    isTeacher,
+    startDate,
+  );
+
+  item.appendChild(info);
+  list.appendChild(item);
+  panel.appendChild(list);
+
+  return;
+}
 
 zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, startDate) => {
   const entry = zooom.createLink(text, title);
