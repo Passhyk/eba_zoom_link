@@ -128,13 +128,6 @@ zooom.init = async function () {
 
   else return zooom.studentFallback(panel,informText,isTeacher); // the script ran at liveMiddleware page so do studentFallback.
 
-  if (!zooom.isSuccess(studyTimeData)) { // if the server doesn't return anything useful.
-    panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
-    panel.style.color = 'white';
-    informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
-    return zooom.print('Unable to load meeting data');
-  }
-
   if (!(studyTimeData.totalRecords > 0)) { // No meetings are found. Remove panel after 5 seconds.
     informText.innerText = "Planlanmış Canlı Dersiniz Bulunmamakta.";
     setTimeout( () => document.getElementById('hideBtnEbaZoom').remove(), 5000);
@@ -152,7 +145,7 @@ zooom.init = async function () {
     const { id, title, startdate, enddate, ownerName, ownerSurname } = studyTime;
     const dates = `(${new Date(startdate).toLocaleString()} - ${new Date(enddate).toLocaleString()})`; //The date text, just epoch to readable format conversion.
 
-    const lessonItem = document.createElement('li'); 
+    const lessonItem = document.createElement('li');
     lessonItem.style.listStyle = 'none';
 
     const info = zooom.createLiveLessonEntry( // Create a span tag with necessary functions and text setup.
@@ -269,7 +262,7 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
   const entry = zooom.createLink(text, title); // Create a <span> for information.
 
   // When clicked, (try to) open meeting in a new tab.
-  entry.onclick = async () => { 
+  entry.onclick = async () => {
     if (startDate < new Date().getTime()){ // check if the meeting is able to start.
       const liveLessonConfig = config.livelesson({
         studytimeid,
@@ -373,4 +366,4 @@ zooom.print = console.log; // To log errors and other stuff.
 window.onload = zooom.init; // Run after the page is loaded.
 
 // Just in case..
-unsafeWindow.zooom = zooom; 
+unsafeWindow.zooom = zooom;
