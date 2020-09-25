@@ -120,13 +120,33 @@ zooom.init = async function () {
       studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
 
       if(!zooom.isSuccess(studyTimeData)) { // Last chance for recovery. Try liveMiddleware.
-        return zooom.studentFallback(panel,informText,isTeacher);
+        return await zooom.studentFallback(panel,informText,isTeacher);
       }
     }
     else isTeacher=true; // No errors accured, the user is a teacher.
   }
 
-  else return zooom.studentFallback(panel,informText,isTeacher); // the script ran at liveMiddleware page so do studentFallback.
+  else { // the script ran at liveMiddleware page so do studentFallback.
+    if(! await zooom.studentFallback(panel,informText,isTeacher)){ // But the index is still accessable so more robustness here.
+      isTeacher=false; // Can't access to the teacher data (due to if statement above), the user is likely a student.
+      studyTimeConfig = zooom.CONFIG.student.studytime({
+        status: 1,
+        type: 2,
+        pagesize: 25,
+        pagenumber: 0,
+      });
+      studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+    }
+    else return;
+  }
+  
+  if (!zooom.isSuccess(studyTimeData)) { // Can't access to lesson data.
+    panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+    panel.style.color = 'white';
+    informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
+    zooom.print('Unable to load meeting data');
+    return false;
+  }
 
   if (!(studyTimeData.totalRecords > 0)) { // No meetings are found. Remove panel after 5 seconds.
     informText.innerText = "Planlanmış Canlı Dersiniz Bulunmamakta.";
@@ -218,15 +238,10 @@ zooom.queryServiceForJson = async (config) => {
 zooom.studentFallback = async (panel,informText,isTeacher) => { // defined as a function, because of multiple uses. To properly running it, arguments are just passed right in.
   zooom.print('Falling Back to getlivelessoninfo.');
 
-  const liveLessonConfig = zooom.CONFIG.studentFallback.studytime();
-  const studyTimeData = await zooom.queryServiceForJson(liveLessonConfig); // get lesson data.
+  let liveLessonConfig = zooom.CONFIG.studentFallback.studytime();
+  let studyTimeData = await zooom.queryServiceForJson(liveLessonConfig); // get lesson data.
 
-  if (!zooom.isSuccess(studyTimeData)) { // Can't access to lesson data.
-    panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
-    panel.style.color = 'white';
-    informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
-    return zooom.print('Unable to load meeting data');
-  }
+  if (!zooom.isSuccess(studyTimeData)) return false; // Can't access to lesson data.
 
   const {
     liveLessonInfo: {
@@ -255,7 +270,7 @@ zooom.studentFallback = async (panel,informText,isTeacher) => { // defined as a 
   list.appendChild(item); // append <li> to <ul>
   panel.appendChild(list); // append the <ul> container to Main Link Container.
 
-  return;
+  return true;
 }
 
 zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, startDate) => {
