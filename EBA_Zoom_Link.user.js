@@ -120,15 +120,22 @@ zooom.init = async function () {
       studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
 
       if(!zooom.isSuccess(studyTimeData)) { // Last chance for recovery. Try liveMiddleware.
-        return await zooom.studentFallback(panel,informText,isTeacher);
+        if(! await zooom.studentFallback(panel,informText,isTeacher)){
+          panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+          panel.style.color = 'white';
+          informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
+          zooom.print('Unable to load meeting data');
+          return false;
+        }
+        else return true;
       }
     }
     else isTeacher=true; // No errors accured, the user is a teacher.
   }
 
   else { // the script ran at liveMiddleware page so do studentFallback.
+    isTeacher=false; // Can't access to the teacher data (due to if statement above), the user is a student.
     if(! await zooom.studentFallback(panel,informText,isTeacher)){ // But the index is still accessable so more robustness here.
-      isTeacher=false; // Can't access to the teacher data (due to if statement above), the user is likely a student.
       studyTimeConfig = zooom.CONFIG.student.studytime({
         status: 1,
         type: 2,
@@ -136,18 +143,17 @@ zooom.init = async function () {
         pagenumber: 0,
       });
       studyTimeData = await zooom.queryServiceForJson(studyTimeConfig);
+      if (!zooom.isSuccess(studyTimeData)) { // Can't access to lesson data.
+        panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+        panel.style.color = 'white';
+        informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
+        zooom.print('Unable to load meeting data');
+        return false;
+      }
     }
     else return;
   }
   
-  if (!zooom.isSuccess(studyTimeData)) { // Can't access to lesson data.
-    panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
-    panel.style.color = 'white';
-    informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
-    zooom.print('Unable to load meeting data');
-    return false;
-  }
-
   if (!(studyTimeData.totalRecords > 0)) { // No meetings are found. Remove panel after 5 seconds.
     informText.innerText = "Planlanmış Canlı Dersiniz Bulunmamakta.";
     setTimeout( () => document.getElementById('hideBtnEbaZoom').remove(), 5000);
