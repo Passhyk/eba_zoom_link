@@ -8,7 +8,7 @@
 // @updateURL    https://github.com/caglarturali/eba_zoom_link/raw/master/EBA_Zoom_Link.meta.js
 // @downloadURL  https://github.com/caglarturali/eba_zoom_link/raw/master/EBA_Zoom_Link.user.js
 // @icon         https://github.com/caglarturali/eba_zoom_link/raw/master/assets/logo256.png
-// @match        https://ders.eba.gov.tr/*
+// @match        https://ders.eba.gov.tr/ders/*
 // @connect      eba.gov.tr
 // @grant        GM_xmlhttpRequest
 // @noframes
