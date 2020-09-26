@@ -123,7 +123,7 @@ zooom.init = async function () {
         if(! await zooom.studentFallback(panel,informText,isTeacher)){
           panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
           panel.style.color = 'white';
-          informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
+          informText.innerText = 'Ders bilgisi alınamadı. Giriş durumunuzu kontrol ediniz.';
           zooom.print('Unable to load meeting data');
           return false;
         }
@@ -146,7 +146,7 @@ zooom.init = async function () {
       if (!zooom.isSuccess(studyTimeData)) { // Can't access to lesson data.
         panel.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
         panel.style.color = 'white';
-        informText.innerText = 'Ders bilgisi alınamadı. Sayfayı yenileyiniz.';
+        informText.innerText = 'Ders bilgisi alınamadı. Giriş durumunuzu kontrol ediniz.';
         zooom.print('Unable to load meeting data');
         return false;
       }
@@ -248,7 +248,7 @@ zooom.studentFallback = async (panel,informText,isTeacher) => { // defined as a 
   let studyTimeData = await zooom.queryServiceForJson(liveLessonConfig); // get lesson data.
 
   if (!zooom.isSuccess(studyTimeData)) return false; // Can't access to lesson data.
-
+  if (studyTimeData.liveLessonInfo.studyTime == null) return false; // Livemiddleware is not active
   const {
     liveLessonInfo: {
       studyTime: { studyTimeId, studyTimeTitle, ownerName, startDate, endDate },
@@ -297,7 +297,7 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
       }
       else if (!zooom.isSuccess(liveLessonData)) { // Can't load start data.
         alert('Ders bilgisini alırken bir hata oluştu, tekrar deneyiniz.');
-        return zooom.print('Unable to load meeting data');
+        return zooom.print('Unable to load start meeting data');
       }
 
       const {
