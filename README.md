@@ -2,7 +2,7 @@
 
 ## Nedir?
 
-EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamasına gerek duymadan canlı derslere katılmayı mümkün kılan bir [Kullanıcı Betiği](http://www.operaturkiye.net/kullanici-java-betigi-userjs-nedir/index.html)dir.
+EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamasına gerek duymadan canlı derslere katılmayı / dersleri başlatmayı mümkün kılan bir [Kullanıcı Betiği](http://www.operaturkiye.net/kullanici-java-betigi-userjs-nedir/index.html)dir.
 
 ## Kullanım Talimatları
 
