@@ -89,7 +89,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
 
 zooom.init = async function () {
   const panel = zooom.createContainer('div');
-  panel.style.backgroundColor = '#3aa1d8';
+  panel.style.backgroundColor = 'rgba(58, 161, 216, 0.7)';
   panel.style.color = 'black'; // Main link container setup.
 
   const informText = document.createElement('span');
