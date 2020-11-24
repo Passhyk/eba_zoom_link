@@ -1,5 +1,10 @@
 # <img src="assets/logo256.png" width="32" height="32" align="left"/> EBA~Zoom Link
 
+```diff
+-Önemli Not: EBA'daki bir hata yüzünden şu anda iş görmez durumdadır. Üstünde çalışılıyor.
+```
+[#18](https://github.com/caglarturali/eba_zoom_link/issues/18)
+
 ## Nedir?
 
 EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamasına gerek duymadan canlı derslere katılmayı mümkün kılan bir [Kullanıcı Betiği](http://www.operaturkiye.net/kullanici-java-betigi-userjs-nedir/index.html)dir.
