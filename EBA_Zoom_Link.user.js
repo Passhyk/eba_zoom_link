@@ -287,7 +287,7 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
     if (startDate < new Date().getTime()){ // check if the meeting is able to start.
       const liveLessonConfig = config.livelesson({
         studytimeid,
-        tokentype: isTeacher ? 'zak' : 'sometokentype', // for teachers there is a zak token for hosting the meeting.
+        tokentype: "nonce"
       });
       const liveLessonData = await zooom.queryServiceForJson(liveLessonConfig);
 
@@ -303,7 +303,17 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
       const {
         meeting: { url, token },
       } = liveLessonData;
-      unsafeWindow.open(isTeacher ? `${url}?zak=${token}` : `${url}?tk=${token}`); // Setup the url for usertypes.
+      // They messed up the token returning so we changed it. Uses same token distribution as eba_canli_ders.exe
+      GM_xmlhttpRequest({
+      	method: "GET",
+      	url: `https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/${token}`,
+      	headers: {
+      		"Accept":"json",
+      	},
+      	onload: (r) => {
+      		unsafeWindow.open(`${url}?tk=${r.text.split("|")[0]}`)
+      	}
+      });
     }
     else{ // meeting is not started.
       alert('Dersiniz Daha Başlamamış.');
@@ -385,6 +395,7 @@ zooom.createLink = (text, title, element = 'span') => { // Link <span> creator.
 zooom.print = console.log; // To log errors and other stuff.
 
 window.onload = zooom.init; // Run after the page is loaded.
+
 
 // Just in case..
 unsafeWindow.zooom = zooom;
