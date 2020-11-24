@@ -62,7 +62,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
       };
     },
   },
-  teacher: { // Teacher config is the same as student but the studytime url and the tokentype changes.
+  teacher: { // Teacher config is the same as student but the studytime url changes.
     base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
     studytime(payload) {
       return {
@@ -100,7 +100,7 @@ zooom.init = async function () {
 
   var isTeacher;
 
-  if (window.location.pathname.indexOf('liveMiddleware') < 0) { // are we in the liveMiddleware ?
+  if (window.location.pathname.includes('liveMiddleware')) { // are we in the liveMiddleware ?
     var studyTimeConfig = zooom.CONFIG.teacher.studytime({
       status: 1,
       type: 2,
@@ -304,6 +304,7 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
         meeting: { url, token },
       } = liveLessonData;
       // They messed up the token returning so we changed it. Uses same token distribution as eba_canli_ders.exe
+      // Detail in Github Wiki and https://github.com/sh4dowb/eba-canli-ders-crossplatform/issues/5
       GM_xmlhttpRequest({
       	method: "GET",
       	url: `https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/${token}`,
@@ -395,7 +396,6 @@ zooom.createLink = (text, title, element = 'span') => { // Link <span> creator.
 zooom.print = console.log; // To log errors and other stuff.
 
 window.onload = zooom.init; // Run after the page is loaded.
-
 
 // Just in case..
 unsafeWindow.zooom = zooom;
