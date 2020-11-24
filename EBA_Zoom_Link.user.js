@@ -311,7 +311,7 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
       		"Accept":"json",
       	},
       	onload: (r) => {
-      		unsafeWindow.open(`${url}?tk=${r.responseText.split("|")[0]}`)
+          unsafeWindow.open(`${url}?tk=${r.responseText.replaceAll('"').split("|")[0]}`)
       	}
       });
     }
