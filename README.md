@@ -1,10 +1,5 @@
 # <img src="assets/logo256.png" width="32" height="32" align="left"/> EBA~Zoom Link
 
-```diff
--Önemli Not: EBA'daki bir hata yüzünden şu anda iş görmez durumdadır. Üstünde çalışılıyor.
-```
-[#18](https://github.com/caglarturali/eba_zoom_link/issues/18)
-
 ## Nedir?
 
 EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamasına gerek duymadan canlı derslere katılmayı / dersleri başlatmayı mümkün kılan bir [Kullanıcı Betiği](http://www.operaturkiye.net/kullanici-java-betigi-userjs-nedir/index.html)dir.
@@ -33,9 +28,9 @@ EBA~Zoom Link, Linux ve macOS (ve pek tabii Windows!) sistemlerde EBA uygulamas�
 
 3. EBA API'sindeki değişiklikler nedeni ile artık derslere zamanından önce girememektesiniz [#13](../../issues/13).
 
-4. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı güncellemeyi deneyin. Sorun devam ederse [issue](/../../issues) açmaktan çekinmeyin. 😊
-
-5. [eba-canli-ders.js](https://gist.github.com/sh4dowb/9ecdc521c7323411f3294d5126a2bfde) betiğinden esinlenilmiştir. @sh4dowb 👌
+4. Herhangi bir sorunla karşılaşmanız durumunda önce tarayıcınızı ve betiği'i güncellemeyi deneyin. Sorun devam ederse [issue](/../../issues) açmaktan çekinmeyin. 😊
+5. development dalında test edilmemiş değişiklikler bulunmaktadır, betiğiniz çalışmadığı durumda bu branchı deneyebilirsiniz.
+6. [eba-canli-ders.js](https://gist.github.com/sh4dowb/9ecdc521c7323411f3294d5126a2bfde) betiğinden esinlenilmiştir. @sh4dowb 👌
 
 ### Örnek Ekran Görüntüsü
 
