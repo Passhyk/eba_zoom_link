@@ -100,7 +100,7 @@ zooom.init = async function () {
 
   var isTeacher;
 
-  if (window.location.pathname.includes('liveMiddleware')) { // are we in the liveMiddleware ?
+  if (!window.location.pathname.includes('liveMiddleware')) { // are we in the liveMiddleware ?
     var studyTimeConfig = zooom.CONFIG.teacher.studytime({
       status: 1,
       type: 2,
