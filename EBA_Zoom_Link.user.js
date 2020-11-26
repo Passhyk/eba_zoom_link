@@ -33,7 +33,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
     },
     livelesson(payload) {
       return {
-        url: `${this.base}/livelesson/instudytime/start`,
+        url: `${this.base}/livelesson/instudytime/join`,
         method: 'POST',
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
