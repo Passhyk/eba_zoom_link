@@ -85,12 +85,19 @@ zooom.init = async () => {
     'cacheservervalid': false,
   });
   const userData = await zooom.queryServiceForJson(userConfig); // Query full user info (just going to use userrole.)
+  let isTeacher;
   if(!zooom.isSuccess(userData)){
-    alert('Kullanıcı Tipi Belirlenemedi.')
-    return;
+    if(!window.location.toString().includes('liveMiddleware')){
+      alert('Kullanıcı Tipi Belirlenemedi.');
+      return;
+    }
+    else{
+      isTeacher = false;
+    }
+  }else {
+    const {userInfoData : {role} } = userData;
+    isTeacher = role == 3 ? false : true; // the student role is 3, otherwise the user is probably a teacher.
   }
-  const {userInfoData : {role} } = userData;
-  const isTeacher = role == 3 ? false : true; // the student role is 3, otherwise the user is probably a teacher.
   console.log(isTeacher)
   console.log(setInterval(() => zooom.linkInserter(isTeacher), 1000)); // Constantly checks for the window.location ()
 };
@@ -123,7 +130,7 @@ zooom.linkInserter = (isTeacher) => {
     const insertionDiv = document.getElementById('joinMeeting').parentElement;
     const standartJoinButton = document.getElementById('joinMeeting');
     const link = document.createElement('h4');
-    link.style.innerHTML = "Eba~Zoom Link İle Katıl";
+    link.innerHTML = "Eba~Zoom Link İle Katıl";
     link.style.backgroundColor = "#438afc";
     link.style.color = 'white';
     link.id = 'ebazoomlinkinsertion';
@@ -136,6 +143,7 @@ zooom.linkInserter = (isTeacher) => {
       } = queryData;
       zooom.startMeeting(studyTimeId, zooom.CONFIG.studentFallback, false, startDate);
     });
+    insertionDiv.append(link);
   }
 };
 
