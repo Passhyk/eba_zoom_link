@@ -121,7 +121,7 @@ zooom.linkInserter = (isTeacher) => {
       }
       const studytimeid = locationHash[i].substr(3);
       if(!studytimeid) return;
-      zooom.startMeeting(studytimeid, isTeacher ? zooom.CONFIG.teacher : zooom.CONFIG.student, 0);
+      zooom.startMeeting(studytimeid, isTeacher ? zooom.CONFIG.teacher : zooom.CONFIG.student, isTeacher, 0);
     });
     insertionDiv.append(linkDiv);
   }
