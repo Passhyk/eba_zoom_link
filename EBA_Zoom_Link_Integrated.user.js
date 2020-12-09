@@ -246,4 +246,6 @@ zooom.queryServiceForJson = async (config) => {
   return result;
 };
 
+zooom.print = console.log; // To log errors and other stuff.
+
 unsafeWindow.onload = zooom.init;
