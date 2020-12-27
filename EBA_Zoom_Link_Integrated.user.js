@@ -78,6 +78,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
       };
     },
   },
+  nonceAddress: 'https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/',
 };
 zooom.init = async () => {
   const userConfig = zooom.CONFIG.getUserInfo.getfulluserinfo({ 
@@ -183,7 +184,7 @@ zooom.startMeeting = async (studytimeid, config, isTeacher, startDate) => { // T
     // Detail in Github Wiki and https://github.com/sh4dowb/eba-canli-ders-crossplatform/issues/5
     GM_xmlhttpRequest({
       method: "GET",
-      url: `https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/${token}`,
+      url: `${zooom.CONFIG.nonceAddress}${token}`,
       headers: {
           "Accept":"json",
       },

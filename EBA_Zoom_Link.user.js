@@ -85,6 +85,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
       };
     },
   },
+  nonceAddress: 'https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/',
 };
 
 zooom.init = async function () {
@@ -307,7 +308,7 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
       // Detail in Github Wiki and https://github.com/sh4dowb/eba-canli-ders-crossplatform/issues/5
       GM_xmlhttpRequest({
       	method: "GET",
-      	url: `https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/${token}`,
+      	url: `${zooom.CONFIG.nonceAddress}${token}`,
       	headers: {
       		"Accept":"json",
       	},
