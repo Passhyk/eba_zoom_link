@@ -20,7 +20,7 @@ const zooom = {};
 
 zooom.CONFIG = { //Required URL's for data exchange.
   getUserInfo: { // To get user role.
-    base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    base: window.location.hostname == 'ders.eba.gov.tr' ? 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/' : 'https://uygulama.sebitvcloud.com/VCloudFrontEndService/',
     getfulluserinfo(payload) {
       return {
         url: `${this.base}/home/user/getuserinfo`,
@@ -33,7 +33,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
     },
   },
   student: {
-    base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    base: window.location.hostname == 'ders.eba.gov.tr' ? 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/' : 'https://uygulama.sebitvcloud.com/VCloudFrontEndService/',
     livelesson(payload) {
       return {
         url: `${this.base}/livelesson/instudytime/start`,
@@ -46,8 +46,8 @@ zooom.CONFIG = { //Required URL's for data exchange.
     },
   },
   studentFallback: { // During liveMiddleware, access to the student config URL's is prohibited.
-    base: 'https://ders.eba.gov.tr/ders',
-    appBase: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    base: window.location.hostname == 'ders.eba.gov.tr' ? 'https://ders.eba.gov.tr/ders' : 'https://sebitvcloud.com',
+    appBase: window.location.hostname == 'ders.eba.gov.tr' ? 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/' : 'https://uygulama.sebitvcloud.com/VCloudFrontEndService/',
     studytime() {
       return {
         url: `${this.base}/getlivelessoninfo`,
@@ -78,7 +78,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
       };
     },
   },
-  nonceAddress: 'https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/',
+  nonceAddress: window.location.hostname == 'ders.eba.gov.tr' ? `https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/` : 'https://uygulama.sebitvcloud.com/VCloudFrontEndService/livelesson/nonce/',
 };
 zooom.init = async () => {
   const userConfig = zooom.CONFIG.getUserInfo.getfulluserinfo({ 

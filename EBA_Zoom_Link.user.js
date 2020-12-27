@@ -9,6 +9,7 @@
 // @downloadURL  https://github.com/caglarturali/eba_zoom_link/raw/master/EBA_Zoom_Link.user.js
 // @icon         https://github.com/caglarturali/eba_zoom_link/raw/master/assets/logo256.png
 // @match        https://ders.eba.gov.tr/ders/*
+// @match        https://sebitvcloud.com/*
 // @connect      eba.gov.tr
 // @grant        GM_xmlhttpRequest
 // @noframes
@@ -20,7 +21,7 @@ const zooom = {};
 
 zooom.CONFIG = { //Required URL's for data exchange.
   student: {
-    base: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    base: window.location.hostname == 'ders.eba.gov.tr' ? 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/' : 'https://uygulama.sebitvcloud.com/VCloudFrontEndService/',
     studytime(payload) {
       return {
         url: `${this.base}/studytime/getstudentstudytime`,
@@ -43,8 +44,8 @@ zooom.CONFIG = { //Required URL's for data exchange.
     },
   },
   studentFallback: { // During liveMiddleware, access to the student config URL's is prohibited.
-    base: 'https://ders.eba.gov.tr/ders',
-    appBase: 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/',
+    base: window.location.hostname == 'ders.eba.gov.tr' ? 'https://ders.eba.gov.tr/ders' : 'https://sebitvcloud.com',
+    appBase: window.location.hostname == 'ders.eba.gov.tr' ? 'https://uygulama-ebaders.eba.gov.tr/ders/FrontEndService/' : 'https://uygulama.sebitvcloud.com/VCloudFrontEndService/',
     studytime() {
       return {
         url: `${this.base}/getlivelessoninfo`,
@@ -85,7 +86,7 @@ zooom.CONFIG = { //Required URL's for data exchange.
       };
     },
   },
-  nonceAddress: 'https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/',
+  nonceAddress: window.location.hostname == 'ders.eba.gov.tr' ? 'https://uygulama-ebaders.eba.gov.tr/FrontEndService/livelesson/nonce/' : 'https://uygulama.sebitvcloud.com/VCloudFrontEndService/livelesson/nonce/',
 };
 
 zooom.init = async function () {
