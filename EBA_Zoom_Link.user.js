@@ -307,14 +307,14 @@ zooom.createLiveLessonEntry = (text, title, studytimeid, config, isTeacher, star
       // They messed up the token returning so we changed it. Uses same token distribution as eba_canli_ders.exe
       // Detail in Github Wiki and https://github.com/sh4dowb/eba-canli-ders-crossplatform/issues/5
       GM_xmlhttpRequest({
-      	method: "GET",
-      	url: `${zooom.CONFIG.nonceAddress}${token}`,
-      	headers: {
-      		"Accept":"json",
-      	},
-      	onload: (r) => {
+        method: "GET",
+        url: `${zooom.CONFIG.nonceAddress}${token}`,
+        headers: {
+          "Accept":"json",
+        },
+        onload: (r) => {
           unsafeWindow.open(`${url}?tk=${r.responseText.replaceAll('"',"").split("|")[isTeacher ? 6 : 0]}`)
-      	}
+        }
       });
     }
     else{ // meeting is not started.
