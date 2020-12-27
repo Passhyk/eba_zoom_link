@@ -105,13 +105,17 @@ zooom.linkInserter = (isTeacher) => {
   if(window.location.toString().includes("/main/etudDetail")){
     const insertionDiv = document.getElementsByClassName('p-l-xs vc-display-flex vc-align-items-center m-t-sm ng-scope')[0];
     if(!insertionDiv) return;
-    if(insertionDiv.children.length > 1) return;
+    if(insertionDiv.children.length > 1){
+        document.getElementById('ebazoomlinkinsertion').className = insertionDiv.children[0].className;
+        return;
+    };
     const linkDiv = document.createElement('div');
     linkDiv.className = insertionDiv.children[0].className;
     linkDiv.style.backgroundColor = "#438afc";
     linkDiv.style.color = 'white';
     linkDiv.style.marginLeft='10px';
     linkDiv.innerHTML = "Eba~Zoom Link İle Başlat";
+    linkDiv.id = 'ebazoomlinkinsertion';
     linkDiv.addEventListener('click', () => {
       const locationHash = window.location.hash.split("?")[1].split("&");
       for(var i=0; i < locationHash.length; i++){
@@ -120,13 +124,19 @@ zooom.linkInserter = (isTeacher) => {
         }
       }
       const studytimeid = locationHash[i].substr(3);
-      if(!studytimeid) return;
+      if(!studytimeid){
+        alert("Ders id'si Alınamadı.");
+        return;
+      };
       zooom.startMeeting(studytimeid, isTeacher ? zooom.CONFIG.teacher : zooom.CONFIG.student, isTeacher, 0);
     });
     insertionDiv.append(linkDiv);
   }
   if(window.location.toString().includes('liveMiddleware')){
-    if(document.getElementById('ebazoomlinkinsertion')) return;
+    if(document.getElementById('ebazoomlinkinsertion')){
+        document.getElementById('ebazoomlinkinsertion').className = document.getElementById('joinMeeting').className;
+        return;
+    }
     const insertionDiv = document.getElementById('joinMeeting').parentElement;
     const standartJoinButton = document.getElementById('joinMeeting');
     const link = document.createElement('h4');
